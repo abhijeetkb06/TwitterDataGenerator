@@ -14,6 +14,8 @@ import com.couchbase.client.java.Cluster;
 import com.couchbase.client.java.Collection;
 import com.couchbase.client.java.Scope;
 import com.couchbase.client.java.json.JsonObject;
+import com.couchbase.client.java.kv.CounterResult;
+import com.couchbase.client.java.kv.IncrementOptions;
 import com.twitter.clientlib.ApiException;
 import com.twitter.clientlib.TwitterCredentialsBearer;
 import com.twitter.clientlib.api.TwitterApi;
@@ -109,9 +111,13 @@ public class StreamTwitter {
 		    bucket.waitUntilReady(Duration.parse(PT10S)) ;
 		 	Scope scope = bucket.scope(scopeName);
 			Collection collCB = scope.collection(collectionName);
-			
+
+			CounterResult myID = collCB.binary().increment(id, IncrementOptions.incrementOptions().initial(1));
+			System.out.println("************ myID.toString() ************** " + myID.toString());
+			System.out.println("************ myID.cas()************** " + myID.cas());
+			System.out.println("************ myID.content()************** " + myID.content());
 			// Insert document in couchbase
-			collCB.insert(id, jsonVal);
+			collCB.insert(myID.toString(), jsonVal);
 			
 			//Data loaded
 			System.out.println(jsonVal != null ? jsonVal.toString() : "Null object");
